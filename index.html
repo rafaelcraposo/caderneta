@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Caderneta de Apostas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: caderno de banca de longo prazo: calmo, confiável, sem pressa.
+   IDEA: a caderneta de um contador: uma página para lançar e conferir; o resto fica guardado em abas.
+   PICTURE: a própria caixa de lançamento e a fila de pendentes em ordem de horário do jogo.
+   COLOUR and TYPE: névoa clara, verde-petróleo profundo; resultados em verde e terracota suaves. Manrope.
+   LAYOUT: coluna única de 880px; abas Apostas, Histórico, Dados, Ajustes. */
+:root{color-scheme:light dark;--bg:light-dark(#eef2ef,#111816);--card:light-dark(#fff,#18221f);--ink:light-dark(#1d2b28,#e4ece9);--mut:light-dark(#62716d,#93a39e);--line:light-dark(#dbe3df,#27332f);--pri:light-dark(#2d6a63,#79b9ae);--pri-ink:light-dark(#fff,#0f1916);--soft:light-dark(#e2ece9,#1e2e2a);--win:light-dark(#2f855f,#6cc39b);--loss:light-dark(#b0604f,#e2907f);--hw:light-dark(#6aa58a,#94d2b4);--hl:light-dark(#c98b7e,#e8ab9f)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Manrope,system-ui,sans-serif;overflow-x:clip;font-variant-numeric:tabular-nums}
+.wrap{max-width:880px;margin:0 auto;padding:0 max(4vw,14px)}
+header{padding:18px 0 6px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px}
+.brand i{width:26px;height:26px;border-radius:8px;background:var(--pri);display:inline-block;position:relative}
+.brand i::after{content:"";position:absolute;inset:7px 6px;border-top:2px solid var(--pri-ink);border-bottom:2px solid var(--pri-ink)}
+nav{display:flex;gap:6px;margin:14px 0 18px;overflow-x:auto;padding-bottom:2px}
+nav a{padding:10px 16px;border-radius:999px;color:var(--mut);text-decoration:none;font-weight:700;font-size:15px;white-space:nowrap;min-height:44px;display:inline-flex;align-items:center;gap:6px}
+nav a.act{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+nav a b{background:var(--pri);color:var(--pri-ink);border-radius:99px;font-size:12px;padding:1px 7px}
+h1{font-size:clamp(26px,3.5vw,34px);line-height:1.1;margin:0 0 4px;font-weight:800;text-wrap:balance}
+h2{font-size:19px;margin:0;font-weight:800}
+.card{background:var(--card);border-radius:18px;padding:18px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.sub{color:var(--mut);font-size:14px}
+textarea{width:100%;resize:vertical;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font:16px/1.5 inherit;background:var(--bg);color:var(--ink)}
+textarea:focus,input:focus,select:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px var(--soft)}
+#q{min-height:96px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{min-height:44px;padding:0 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:700 15px inherit;cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.btn:hover{border-color:var(--pri)}.btn:focus-visible,nav a:focus-visible,.rb:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:var(--pri-ink)}
+.btn.sm{min-height:36px;padding:0 12px;font-size:14px;border-radius:10px}
+.btn.ghost{border-color:transparent;background:none;color:var(--mut)}
+.btn.on{background:var(--loss);border-color:var(--loss);color:#fff}
+.btn[disabled]{opacity:.55;cursor:wait}
+.hint{font-size:13px;color:var(--mut)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{position:relative}.chip img{height:56px;border-radius:8px;display:block}
+.chip button{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px}
+label.f{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:3px;font-weight:600}
+input,select{font:16px inherit;min-height:42px;border:1.5px solid var(--line);border-radius:10px;padding:0 10px;background:var(--bg);color:var(--ink);width:100%}
+.draft{border:1.5px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}
+.draft .sel{font-weight:700;margin-bottom:10px}
+details summary{cursor:pointer;color:var(--mut);font-weight:700;font-size:14px;padding:6px 0;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"+ "}details[open] summary::before{content:"− "}
+.sec{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:28px 0 10px;flex-wrap:wrap}
+.day{font-size:13px;font-weight:800;color:var(--mut);margin:18px 0 6px;display:flex;justify-content:space-between}
+.pc{background:var(--card);border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:center;margin-bottom:8px}
+.pt{font-weight:800;font-size:15px;color:var(--pri)}
+.pm b{display:block;font-weight:700;line-height:1.35}
+.pm span{font-size:13px;color:var(--mut)}
+.late{color:var(--pri);font-weight:700}
+.rbs{display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.rb{min-width:44px;min-height:42px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);font:800 14px inherit;cursor:pointer;color:var(--mut)}
+.rb.win{color:var(--win)}.rb.loss{color:var(--loss)}.rb.hw{color:var(--hw)}.rb.hl{color:var(--hl)}
+.rb:hover{border-color:currentColor;background:var(--soft)}
+.empty{color:var(--mut);padding:26px 0;text-align:center}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;color:var(--mut);font-weight:700;padding:8px 6px;border-bottom:1.5px solid var(--line)}
+td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.n,th.n{text-align:right;white-space:nowrap}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--soft)}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:800;white-space:nowrap}
+.t-win{color:var(--win);background:color-mix(in srgb,var(--win) 14%,transparent)}.t-loss{color:var(--loss);background:color-mix(in srgb,var(--loss) 14%,transparent)}
+.t-hw{color:var(--hw);background:color-mix(in srgb,var(--hw) 14%,transparent)}.t-hl{color:var(--hl);background:color-mix(in srgb,var(--hl) 14%,transparent)}
+.t-void,.t-pending{color:var(--mut);background:var(--soft)}
+.t-f{color:var(--pri);background:var(--soft)}.t-c{color:var(--loss);background:color-mix(in srgb,var(--loss) 10%,transparent)}
+.pos{color:var(--win)}.neg{color:var(--loss)}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.kp{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kp div{background:var(--card);border-radius:14px;padding:12px 14px}.kp b{display:block;font-size:24px;font-weight:800;line-height:1.15;white-space:nowrap}.kp span{font-size:12px;color:var(--mut);font-weight:600}
+.kp .big{grid-column:span 2}.kp .big b{font-size:34px}
+.dstat{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;font-size:14px;color:var(--mut);background:var(--soft);border-radius:12px;padding:8px 12px;margin-bottom:14px}.dstat b{font-size:17px;font-weight:800}.dstat .lbl{font-weight:800;color:var(--ink)}
+.prof{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.prof div{background:var(--card);border-radius:14px;padding:12px 14px}.prof b{font-size:22px;font-weight:800;display:block}.prof span{font-size:13px;color:var(--mut)}
+.fig{position:relative;min-height:240px}.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.ln{fill:none;stroke:var(--pri);stroke-width:2.5}.ar{fill:var(--pri);opacity:.12}.zl{stroke:var(--line);stroke-dasharray:4 4}.dt{fill:var(--pri)}.ct{fill:var(--mut);font-size:14px}
+.bar{height:8px;border-radius:4px;background:var(--soft);position:relative;min-width:60px}.bar i{position:absolute;top:0;bottom:0;border-radius:4px}
+.modal{position:fixed;inset:0;background:rgba(10,20,18,.45);display:none;align-items:flex-start;justify-content:center;padding:4vh 12px;z-index:9;overflow:auto}
+.modal.open{display:flex}.modal .card{max-width:760px;width:100%}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(10px);background:var(--ink);color:var(--bg);padding:8px 8px 8px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:10;display:flex;gap:10px;align-items:center;max-width:92vw}
+.toast.show{opacity:1;transform:translateX(-50%);pointer-events:auto}
+.toast button{background:none;border:0;color:var(--bg);font:800 14px inherit;text-decoration:underline;cursor:pointer;min-height:36px;padding:0 8px}
+.note{font-size:13px;color:var(--mut)}
+body.locked main,body.locked nav,body.locked #offline{display:none}
+.offline{background:color-mix(in srgb,var(--loss) 14%,var(--card));color:var(--ink);border:1.5px solid var(--loss);border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:15px}
+.scroll{overflow-x:auto}
+[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+@media(max-width:640px){.filters{grid-template-columns:1fr 1fr}.filters input{grid-column:1/-1}.pc{grid-template-columns:44px minmax(0,1fr)}.rbs{grid-column:1/-1;justify-content:flex-start}.kp .big{grid-column:1/-1}}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:7em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:6.5em;margin-inline-start:-7em;color:var(--mut);font-size:12px}.stack td:empty{display:none}}
+</style><script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script></head><body class="locked">
+<div class="wrap">
+<header><div class="row" style="justify-content:space-between"><span class="brand"><i></i>Caderneta</span><span class="note" id="note"></span></div>
+<nav id="nav"><a href="#apostas" data-v="apostas">Apostas <b id="npend" hidden></b></a><a href="#historico" data-v="historico">Histórico</a><a href="#dados" data-v="dados">Dados</a><a href="#ajustes" data-v="ajustes">Ajustes</a></nav></header>
+
+<div id="offline" class="offline" role="alert" hidden></div>
+<div id="login" class="card" hidden style="max-width:460px;margin:40px auto;text-align:center"><h1>Caderneta</h1><p class="sub">Entre com a sua conta Google para ver e registrar suas apostas.</p><button class="btn pri" id="lbtn" style="margin:10px auto">Entrar com Google</button><p class="hint" id="lmsg"></p></div>
+<main>
+<section id="v-apostas">
+  <div class="card" id="entry">
+    <div class="dstat" id="dstat"></div>
+    <h1>Nova aposta</h1>
+    <p class="sub" style="margin:0 0 12px">Escreva do seu jeito, uma por linha. Horário, partida e casa podem vir numa linha antes, como você já anota.</p>
+    <textarea id="q" placeholder="17:00&#10;Heroic x FaZe&#10;frozen +1.5 x brollan mapa 1 @2.00 1.5u thunderpick"></textarea>
+    <div class="row" style="margin-top:10px;justify-content:space-between">
+      <div class="row">
+        <button class="btn pri" id="go">Revisar ⏎</button>
+        <button class="btn" id="mic" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Ditar</span></button>
+        <label class="btn" for="file" hidden>Print</label><input type="file" id="file" accept="image/*" multiple hidden>
+      </div>
+      <span class="hint" id="aihint">Ctrl+⏎ salva direto</span>
+    </div>
+    <div class="chips" id="chips" style="margin-top:8px"></div>
+    <div id="drafts"></div>
+  </div>
+
+  <div class="sec"><h2>Pendentes</h2><span class="sub" id="psum"></span></div>
+  <div id="plist"></div>
+  <details class="card" id="settle" style="margin-top:14px" hidden>
+    <summary>Resolver várias de uma vez (print ou texto)</summary>
+    <p class="hint" style="margin:6px 0 10px">Cole o print da aba de apostas resolvidas da casa, o placar ou o scoreboard. O Claude cruza com as pendentes e você confirma.</p>
+    <textarea id="sq" style="min-height:60px" placeholder="Cole aqui texto ou imagem (Ctrl+V)"></textarea>
+    <div class="chips" id="schips" style="margin:8px 0"></div>
+    <div class="row"><button class="btn pri" id="sgo">Cruzar com as pendentes</button><label class="btn" for="sfile">Print</label><input type="file" id="sfile" accept="image/*" multiple hidden></div>
+    <div id="sres"></div>
+  </details>
+</section>
+
+<section id="v-historico" hidden>
+  <h1 style="margin-bottom:14px">Histórico</h1>
+  <div class="filters">
+    <input id="hq" type="search" placeholder="Buscar jogador, time, mercado…" aria-label="Buscar">
+    <select id="hs" aria-label="Esporte"></select><select id="hb" aria-label="Casa"></select>
+    <select id="hp" aria-label="Período"></select>
+  </div>
+  <div id="hprof"></div>
+  <p class="sub" id="hsum" style="margin:0 0 8px"></p>
+  <div id="hlist"></div>
+</section>
+
+<section id="v-dados" hidden>
+  <h1 style="margin-bottom:14px">Dados</h1>
+  <div class="filters" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+    <select id="dp" aria-label="Período"></select><select id="ds" aria-label="Esporte"></select><select id="db" aria-label="Casa"></select>
+  </div>
+  <div class="kp" id="dk"></div>
+  <div class="card" style="margin-bottom:14px"><div class="row" style="justify-content:space-between"><h2>Lucro acumulado</h2><span class="sub">unidades, na ordem dos jogos</span></div><div class="fig"><svg id="curve" role="img" aria-label="Curva de lucro acumulado"></svg></div></div>
+  <div class="sec" style="margin-top:6px"><h2>Cortes</h2><select id="dim" style="width:auto"></select></div>
+  <div class="card" id="dcuts"></div>
+</section>
+
+<section id="v-ajustes" hidden></section>
+</main>
+<div style="height:60px"></div>
+</div>
+
+<div class="modal" id="modal"><div class="card" id="mbody"></div></div>
+<div class="toast" id="toast" role="status"><span id="tmsg"></span><button id="tundo" hidden>Desfazer</button></div>
+<datalist id="dl-player"></datalist><datalist id="dl-event"></datalist>
+
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,collection,doc,setDoc,deleteDoc,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+{
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const RES={pending:'Pendente',win:'Green',hw:'½ Green',void:'Devolvida',hl:'½ Red',loss:'Red'};
+
+/* ---------- catálogo ---------- */
+const SPORTS=['Futebol','CS2','Dota 2','LoL','Valorant','Outros'];
+const FP=['Over {m}','Under {m}','Handicap {m}','Over {m} time','Under {m} time'];
+const EP=['Over {m}','Under {m}','Player duels'];
+const SERIE=['Vencedor da série','Handicap de mapas','Over mapas','Under mapas','Placar exato'];
+const MOBA=['Vencedor do mapa','Over kills do mapa','Under kills do mapa','Handicap de kills','Over duração','Under duração','First blood'];
+const FPS_T=[['Kills do time',['Handicap de kills','Over kills time','Under kills time'],'T'],['Rounds',['Handicap de rounds','Over rounds','Under rounds','Pistol round'],'T'],['Mapas',['Vencedor da série','Vencedor do mapa','Handicap de mapas','Over mapas','Under mapas','Placar exato'],'T']];
+const mk=(ns,p,a='J')=>ns.map(m=>[m,p,a]);
+const RAW={
+  'Futebol':[...mk(['Chutes','Chutes no gol','Faltas','Faltas sofridas','Desarmes','Passes'],FP),['Cartões',['Recebe cartão','Over cartões','Under cartões','Handicap cartões','Over cartões time','Under cartões time'],'J'],...mk(['Escanteios','Impedimentos'],FP,'T'),['Gols',['Over gols','Under gols','Ambas marcam','Handicap asiático','Over gols time','Under gols time'],'T'],['Jogador marca',['Marca a qualquer momento','Marca o 1º gol','Dá assistência','Marca ou dá assistência'],'J'],['Resultado',['1X2','Dupla chance','Empate anula','Handicap asiático'],'T']],
+  'CS2':[...mk(['Kills','Headshots','Assists','Mortes','First kills','AWP kills'],EP),...FPS_T],
+  'Valorant':[...mk(['Kills','Assists','Mortes','First bloods'],EP),...FPS_T],
+  'Dota 2':[...mk(['Kills','Mortes','Assists','Last hits','GPM'],EP),['Mapa',[...MOBA,'Primeiro Roshan','Primeira torre'],'T'],['Série',SERIE,'T']],
+  'LoL':[...mk(['Kills','Mortes','Assists','CS (farm)'],EP),['Mapa',[...MOBA,'Over dragões','Under dragões','Over barões','Under barões','Over torres','Under torres'],'T'],['Série',SERIE,'T']],
+  'Outros':[]};
+const CAT={};for(const s in RAW)CAT[s]=RAW[s].map(([m,p,a])=>({m,a,l:p.map(x=>x.replace('{m}',m.toLowerCase()))}));
+const ESP=['CS2','Dota 2','LoL','Valorant'];
+const PER={Futebol:['Jogo todo','1º tempo','2º tempo']},PER_E=['Mapa 1','Mapa 2','Mapa 3','Mapas 1-2','Mapas 1-3','Série'];
+const fixSub=s=>/^comparativa|^player duel/i.test(s||'')?'Player duels':(s||'');
+const dirOf=s=>/comparativa|player duel/i.test(s)?'Comparativa':/^over/i.test(s)?'Over':/^under/i.test(s)?'Under':/handicap/i.test(s)?'Handicap':/^ml\b/i.test(s)?'ML':/vencedor|1x2|dupla|empate anula/i.test(s)?'Vencedor':s?'Outro':'';
+const alvoOf=b=>{if(/\btime\b/i.test(b.sub||''))return'Time/jogo';const m=CAT[b.sport]?.find(x=>x.m===b.market);return m?(m.a==='J'?'Jogador':'Time/jogo'):'—'};
+
+const DEF={unit:50,bank0:100,books:['Bet365','Superbet','Betano','Pinnacle','Stake','Thunderpick','1win'],sport:'CS2',book:'Bet365'};
+const FIELDS=[['date','Data do jogo','date'],['time','Hora','time'],['sport','Esporte','sport'],['book','Casa','book'],['event','Partida','text','dl-event'],['player','Jogador / time','text','dl-player'],['opp','Contra','text','dl-player'],['market','Mercado','text','@dlm'],['sub','Tipo de aposta','text','@dls'],['line','Linha / handicap','num'],['maps','Mapas / período','text','@dlp'],['odds','Odd','num'],['stake','Stake (u)','num'],['result','Resultado','result'],['tags','Tags','text'],['note','Notas','text']];
+const MAINF=['date','time','sport','book','event','player','opp','market','sub','line','maps','odds','stake','result'];
+let S={...DEF},bets=[],col=null,setRef=null,sample=null,sampleImg=false,dict=null,listening=false;
+let drafts=[],imgs=[],setImgs=[],settleRes=[],view='apostas',dim='market';
+const today=()=>new Date().toLocaleDateString('sv-SE');
+const addDays=(d,n)=>{const x=new Date(d+'T12:00');x.setDate(x.getDate()+n);return x.toLocaleDateString('sv-SE')};
+const num=v=>{const n=parseFloat(String(v??'').replace(',','.'));return isFinite(n)?n:0};
+const nid=()=>'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const pl=b=>{const s=num(b.stake),o=num(b.odds);return b.result==='win'?s*(o-1):b.result==='hw'?s*(o-1)/2:b.result==='loss'?-s:b.result==='hl'?-s/2:0};
+const sg=v=>v>0?'+':v<0?'−':'';
+const fu=(v,d=2)=>sg(v)+Math.abs(v).toFixed(d)+'u';
+const brl=v=>sg(v)+'R$ '+Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pc=(v,d=1)=>isFinite(v)?sg(v)+Math.abs(v*100).toFixed(d)+'%':'—';
+const pcp=(v,d=1)=>isFinite(v)?(v*100).toFixed(d)+'%':'—';
+const cls=v=>v>0?'pos':v<0?'neg':'';
+const nz=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const fmtN=v=>String(v).replace('.',',');
+const label=b=>{if(b.opp&&/comparativa|player duel/i.test(b.sub||'')){const v=num(b.line);return(b.player||'?')+(v?' '+(v>0?'+':'')+fmtN(b.line):'')+' x '+b.opp+(b.maps?' · '+b.maps:'')}
+  const l=b.line!==''&&b.line!=null?' '+(num(b.line)>0&&/handicap/i.test(b.sub||'')?'+':'')+fmtN(b.line):'';
+  return(b.player||b.event||'?')+(b.opp?' x '+b.opp:'')+' · '+(b.sub||b.market||'?')+l+(b.maps?' ('+b.maps+')':'')};
+const ascKey=b=>(b.date||'')+' '+(b.time||'99:99');
+const descKey=b=>(b.date||'')+' '+(b.time||'00:00');
+const byAsc=(a,b)=>ascKey(a).localeCompare(ascKey(b))||(a.ts||0)-(b.ts||0);
+const byDesc=(a,b)=>descKey(b).localeCompare(descKey(a))||(b.ts||0)-(a.ts||0);
+const note=m=>$('#note').textContent=m;
+let tt,undoFn=null;
+function toast(m,u){$('#tmsg').textContent=m;undoFn=u||null;$('#tundo').hidden=!u;$('#toast').classList.add('show');clearTimeout(tt);tt=setTimeout(()=>{$('#toast').classList.remove('show');undoFn=null},u?7000:2600)}
+$('#tundo').onclick=()=>{const f=undoFn;undoFn=null;$('#toast').classList.remove('show');if(f)f()};
+
+/* ---------- lados: a favor / contra ---------- */
+function sim(a,b){a=nz(a);b=nz(b);if(!a||!b)return 0;if(a===b)return 4;if(a.includes(b)||b.includes(a))return 3;let i=0;while(i<a.length&&a[i]===b[i])i++;if(i>=4)return 2;const ta=new Set(a.split(' ').filter(x=>x.length>2));return b.split(' ').some(x=>ta.has(x))?1:0}
+function oppOf(b){if(b.opp)return b.opp;const p=(b.event||'').split(/\s+(?:x|vs\.?|versus)\s+/i);if(p.length!==2||!b.player)return'';const s0=sim(b.player,p[0]),s1=sim(b.player,p[1]);return s0>s1?p[1].trim():s1>s0?p[0].trim():''}
+function sides(b){const P=b.player?[b.player]:[],d=b.side||dirOf(b.sub);
+  if(d==='Under')return{f:[],c:P};
+  if(d==='Comparativa'||d==='Handicap'||d==='ML'||d==='Vencedor'){const o=oppOf(b);return{f:P,c:o?[o]:[]}}
+  return{f:P,c:[]}}
+function ladoDe(b,q){const n=nz(q);if(n.length<2)return'';const s=sides(b);if(s.f.some(x=>nz(x).includes(n)))return'f';if(s.c.some(x=>nz(x).includes(n)))return'c';return''}
+
+/* ---------- armazenamento (à prova de perda) ----------
+   1) toda alteração entra numa fila local (cad_outbox) até o banco confirmar;
+   2) cópia completa espelhada no aparelho (cad_backup);
+   3) apostas antigas salvas só no navegador (cad_v1) sobem para a conta sem duplicar. */
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch{return false}}};
+const lsGet=()=>LS.get('cad_v1',null);
+const getOut=()=>LS.get('cad_outbox',{}),setOut=o=>LS.set('cad_outbox',o);
+let dbState='wait',bkT;
+const backup=()=>{clearTimeout(bkT);bkT=setTimeout(()=>LS.set('cad_backup',{bets,S,at:Date.now()}),400)};
+function banner(){const n=Object.keys(getOut()).length,el=$('#offline');
+  if(dbState==='off'||dbState==='err'){el.hidden=false;el.innerHTML=`<b>Sem conexão no momento.</b> ${n?`${n} ${n>1?'alterações estão guardadas':'alteração está guardada'} só neste aparelho e ${n>1?'vão':'vai'} subir sozinha${n>1?'s':''} quando conectar.`:'O que você lançar fica guardado neste aparelho e sobe sozinho quando conectar.'} Quando a internet voltar, sincroniza sozinho.`}
+  else if(dbState==='on'&&n){el.hidden=false;el.innerHTML=`<b>Enviando ${n} ${n>1?'alterações':'alteração'} para a sua conta…</b> Não feche a página.`}
+  else el.hidden=true;
+  note(dbState==='on'?(n?'':'Sincronizado'):dbState==='wait'?'Conectando…':'')}
+async function pushOne(id,v){if(!col)return false;try{if(v&&v.__del)await col.doc(id).delete();else await col.doc(id).set(v);const o=getOut();if(JSON.stringify(o[id])===JSON.stringify(v)){delete o[id];setOut(o)}return true}catch(e){if(e&&(e.code==='revoked'||e.code==='not_granted'||e.code==='capability_disabled')){dbState='err'}return false}}
+async function putBet(b,quiet){const i=bets.findIndex(x=>x.id===b.id);if(i>=0)bets[i]=b;else bets.push(b);
+  const o=getOut();o[b.id]=b;setOut(o);backup();if(!quiet)render();banner();
+  pushOne(b.id,b).then(banner);banner()}
+async function delBet(id){bets=bets.filter(x=>x.id!==id);const o=getOut();o[id]={__del:true};setOut(o);backup();render();banner();pushOne(id,{__del:true}).then(banner)}
+async function saveS(){LS.set('cad_settings_pending',S);backup();render();if(setRef){try{await setRef.set(S);localStorage.removeItem('cad_settings_pending')}catch{}}}
+const sig=b=>[b.date,nz(b.player),nz(b.opp),(b.line===''||b.line==null)?0:num(b.line),num(b.odds).toFixed(3)].join('|');
+let flushing=false;
+async function flush(dbBets){if(!col||flushing)return;flushing=true;let up=0,mig=0;
+  try{const o=getOut();const ids=new Set(dbBets.map(x=>x.id)),sigs=new Set(dbBets.map(sig));
+    for(const id of Object.keys(o)){const v=o[id];if(v&&!v.__del&&!ids.has(id)&&sigs.has(sig(v))){const oo=getOut();delete oo[id];setOut(oo);continue}if(await pushOne(id,v))up++}
+    const ps=LS.get('cad_settings_pending',null);if(ps&&setRef){try{await setRef.set(ps);localStorage.removeItem('cad_settings_pending')}catch{}}
+    if(!LS.get('cad_v1_done',false)){const lg=lsGet();let ok=true;
+      if(lg&&Array.isArray(lg.bets)&&lg.bets.length){const sigs=new Set(dbBets.map(sig));
+        for(const raw of lg.bets){const s=sig(raw);if(sigs.has(s))continue;sigs.add(s);const nb=norm(raw);nb.id=raw.id||nid();nb.ts=raw.ts||Date.now();
+          if(await pushOne(nb.id,nb))mig++;else ok=false}}
+      if(ok)LS.set('cad_v1_done',true)}}
+  finally{flushing=false;banner()}
+  if(mig)toast(`${mig} aposta${mig>1?'s':''} que estava${mig>1?'m':''} só neste aparelho ${mig>1?'foram enviadas':'foi enviada'} para a sua conta`)}
+setInterval(()=>{if(col&&Object.keys(getOut()).length)flush(bets)},45000);
+let lastDay=today();setInterval(()=>{if(today()!==lastDay){lastDay=today();render()}else rPend()},60000);
+window.addEventListener('online',()=>{if(col)flush(bets)});
+
+/* ---------- estatística ---------- */
+function stats(L){const st=L.filter(b=>b.result&&b.result!=='pending').sort(byAsc);
+  let staked=0,profit=0,w=0,l=0,oS=0,oN=0,be=0,clv=0,cN=0,cur=0;const curve=[];
+  for(const b of st){const s=num(b.stake),o=num(b.odds),p=pl(b);profit+=p;cur+=p;curve.push(cur);if(b.result==='void')continue;
+    staked+=s;oS+=o;oN++;be+=o>1?1/o:0;w+=b.result==='win'?1:b.result==='hw'?.5:0;l+=b.result==='loss'?1:b.result==='hl'?.5:0;
+    const c=num(b.close);if(c>1&&o>1){clv+=o/c-1;cN++}}
+  return{n:st.length,staked,profit,roi:staked?profit/staked:NaN,wr:w+l?w/(w+l):NaN,avgOdd:oN?oS/oN:NaN,be:oN?be/oN:NaN,clv:cN?clv/cN:NaN,cN,curve}}
+const PERIODS=[['all','Todo o período'],['d','Hoje'],['7','Últimos 7 dias'],['30','Últimos 30 dias'],['90','Últimos 90 dias'],['m','Este mês'],['y','Este ano']];
+const PERIODS_D=[['m','Este mês'],['d','Hoje'],['7','Últimos 7 dias'],['30','Últimos 30 dias'],['90','Últimos 90 dias'],['y','Este ano'],['all','Todo o período']];
+function dayStats(){const t=today(),L=bets.filter(b=>b.date===t),s=stats(L);const c=r=>L.filter(b=>b.result===r).length;return{s,g:c('win')+c('hw'),r:c('loss')+c('hl'),v:c('void'),p:c('pending')}}
+function inPer(b,p){if(p==='all')return true;if(p==='d')return b.date===today();const t=today();const from=p==='m'?t.slice(0,8)+'01':p==='y'?t.slice(0,5)+'01-01':addDays(t,-(+p)+1);return(b.date||'')>=from}
+
+/* ---------- campos ---------- */
+function field([k,lab,t,dl],v,pre){const id=pre+k,a=`id="${id}" data-k="${k}"`;let inp;
+  if(t==='sport'||t==='book'){const arr=t==='sport'?SPORTS:S.books;const list=[...new Set([...arr,v].filter(Boolean))];inp=`<select ${a}>${list.map(x=>`<option${x===v?' selected':''}>${esc(x)}</option>`).join('')}</select>`}
+  else if(t==='result')inp=`<select ${a}>${Object.entries(RES).map(([x,n])=>`<option value="${x}"${x===v?' selected':''}>${n}</option>`).join('')}</select>`;
+  else inp=`<input ${a} type="${t==='date'||t==='time'?t:'text'}" ${t==='num'?'inputmode="decimal"':''} ${dl?`list="${dl[0]==='@'?pre+dl.slice(1):dl}"`:''} value="${esc(v)}">`;
+  return`<label class="f" for="${id}">${lab}${inp}</label>`}
+function readFields(root,base){const b={...base};root.querySelectorAll('[data-k]').forEach(e=>{const k=e.dataset.k,t=FIELDS.find(f=>f[0]===k)[2];b[k]=t==='num'?(e.value.trim()===''?'':num(e.value)):e.value.trim()});return b}
+const defSport=()=>SPORTS.includes(S.sport)?S.sport:'CS2';
+const blank=()=>({date:today(),time:'',sport:defSport(),book:S.book,event:'',player:'',opp:'',market:'',sub:'',line:'',maps:'',odds:'',stake:1,close:'',result:'pending',tags:'',note:''});
+function norm(r){const b={...blank(),...Object.fromEntries(Object.entries(r||{}).filter(([k,v])=>v!==null&&v!==undefined))};
+  ['odds','stake','line','close'].forEach(k=>{if(b[k]!==''){const s=String(b[k]).trim();b[k]=s===''?'':num(s)}});if(!RES[b.result])b.result='pending';
+  ['event','player','opp','market','sub','maps','tags','note','sport','book','date','time'].forEach(k=>b[k]=String(b[k]??'').trim());
+  if(!b.sport)b.sport=defSport();else if(!SPORTS.includes(b.sport)){const f=SPORTS.find(s=>s.toLowerCase()===b.sport.toLowerCase());b.sport=f||'Outros'}
+  if(!b.sub&&b.side)b.sub=(b.side+' '+b.market.toLowerCase()).trim();b.sub=fixSub(b.sub);
+  if(b.time&&!/^\d\d:\d\d$/.test(b.time)){const m=b.time.match(/(\d{1,2})\D?(\d{2})?/);b.time=m?String(Math.min(23,+m[1])).padStart(2,'0')+':'+(m[2]||'00'):''}
+  b.side=dirOf(b.sub);b.alvo=alvoOf(b);if(!/^\d{4}-\d\d-\d\d$/.test(b.date))b.date=today();return b}
+function optsFor(sport,market){const c=CAT[sport]||[];const ms=[...new Set([...c.map(x=>x.m),...bets.filter(b=>b.sport===sport).map(b=>b.market)].filter(Boolean))];
+  const cm=c.find(x=>x.m===market);const ss=[...new Set([...(cm?cm.l:[]),...bets.filter(b=>b.sport===sport&&b.market===market).map(b=>b.sub)].filter(Boolean))];
+  return{ms,ss,ps:PER[sport]||PER_E}}
+const opts=a=>a.map(v=>`<option value="${esc(v)}">`).join('');
+function listsHTML(pre,b){const o=optsFor(b.sport,b.market);return`<datalist id="${pre}dlm">${opts(o.ms)}</datalist><datalist id="${pre}dls">${opts(o.ss)}</datalist><datalist id="${pre}dlp">${opts(o.ps)}</datalist>`}
+function refreshLists(root,pre){const g=k=>root.querySelector(`[data-k="${k}"]`)?.value||'';const o=optsFor(g('sport'),g('market'));
+  [['dlm',o.ms],['dls',o.ss],['dlp',o.ps]].forEach(([s,a])=>{const d=document.getElementById(pre+s);if(d)d.innerHTML=opts(a)})}
+
+/* ---------- leitor de texto ---------- */
+const SYN={'Chutes no gol':/chutes?\s+(?:no|ao|a)\s+gol|finaliza\w*\s+(?:no|ao)\s+gol|\bsot\b/i,'Chutes':/\bchutes?\b|finaliza\w*/i,'Faltas sofridas':/faltas?\s+sofridas?/i,'Faltas':/\bfaltas?(?:\s+cometidas)?\b/i,'Desarmes':/\bdesarmes?\b|\btackles?\b/i,'Passes':/\bpasses?\b/i,'Cartões':/cart[aã]o|cart[oõ]es|amarelos?/i,'Escanteios':/escanteios?|\bcantos?\b|\bcorners?\b/i,'Impedimentos':/impedimentos?/i,'Gols':/\bgols?\b|ambas marcam/i,'Jogador marca':/\bmarca\b|anytime/i,'Resultado':/\b1x2\b|dupla chance|empate anula/i,
+  'Kills do time':/kills?\s+(?:do\s+)?time\b|handicap\s+de\s+kills/i,'First kills':/first\s*kills?|\bfk\b|\bentry\b/i,'First bloods':/first\s*bloods?|\bfb\b/i,'AWP kills':/\bawp\b/i,'Headshots':/\bhs\b|headshots?/i,'Kills':/\bkills?\b|\babates?\b/i,'Assists':/\bassist\w*/i,'Mortes':/\bmortes?\b|\bdeaths?\b/i,'Last hits':/last\s*hits?|\blh\b/i,'GPM':/\bgpm\b/i,'CS (farm)':/\bfarm\b/i,'Rounds':/\brounds?\b|\bpistol\b/i,'Mapas':/\bmapas?\b|vencedor|placar/i,'Série':/s[ée]rie|vencedor|placar/i,'Mapa':/dura[cç][aã]o|first blood|roshan|torres?\b|drag[oõ]|bar[aã]o|bar[oõ]es/i};
+const PRI=['Chutes no gol','Faltas sofridas','Kills do time','First kills','First bloods','AWP kills','Headshots','Mapa'];
+const FUT=/\bchutes?\b|finaliza|\bfaltas?\b|escanteio|\bcantos?\b|cart[aã]o|cart[oõ]es|impedimento|desarmes?|\bgols?\b|ambas marcam|\b1x2\b/i;
+const VS=/\s+(?:x|vs\.?|versus)\s+|\s*>\s*/i;
+const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+function sportFromHist(lo){const m={};for(const b of bets)for(const n of[b.player,b.opp])if(n&&n.length>2)m[n.toLowerCase()]=b.sport;
+  for(const n in m)if(new RegExp('(^|[^\\w])'+reEsc(n)+'($|[^\\w])').test(lo))return m[n];return''}
+function pickSub(sport,market,dir,team,hasLine,maps){const L=((CAT[sport]||[]).find(x=>x.m===market)||{l:[]}).l;
+  if(dir==='Comparativa')return'Player duels';
+  if(dir==='ML'){if(market==='Mapas'||market==='Série')return/^mapa \d/i.test(maps)?'Vencedor do mapa':'Vencedor da série';return L.find(l=>/^ml\b/i.test(l))||('ML '+market.toLowerCase()).trim()}
+  if(!dir)return'';return L.find(l=>dirOf(l)===dir&&/\btime\b/i.test(l)===team)||L.find(l=>dirOf(l)===dir)||(dir+' '+market.toLowerCase()).trim()}
+const TIME_RE=/(?:^|\s)([01]?\d|2[0-3])(?::([0-5]\d)|h([0-5]\d)?)(?=\s|$)/i;
+function parseLine(t,ctx={}){const b=blank(),lo=t.toLowerCase();let r=' '+t+' ',dir='',gotDate=false,gotBook=false;
+  const take=re=>{const m=r.match(re);if(m)r=r.replace(m[0],' ');return m};
+  let m=take(/\(([^)]*)\)/);if(m)b.note=m[1].trim();
+  m=take(/@\s*(\d+(?:[.,]\d+)?)/)||take(/\bodds?\s*(\d+(?:[.,]\d+)?)/i);if(m)b.odds=num(m[1]);
+  m=take(/(\d+(?:[.,]\d+)?)\s*u(?:nid\w*)?\b/i);if(m)b.stake=num(m[1]);
+  m=take(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);if(m){const y=m[3]?(m[3].length===2?'20'+m[3]:m[3]):today().slice(0,4);b.date=`${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;gotDate=true}
+  if(take(/(?:^|\s)amanh[ãa](?=\s|$)/i)){b.date=addDays(today(),1);gotDate=true}else if(take(/\bhoje\b/i))gotDate=true;
+  m=take(TIME_RE);if(m)b.time=m[1].padStart(2,'0')+':'+(m[2]||m[3]||'00');
+  for(const bk of S.books)if(new RegExp('(^|[^\\w])'+reEsc(bk.toLowerCase())+'($|[^\\w])').test(lo)){b.book=bk;r=r.replace(new RegExp(reEsc(bk),'i'),' ');gotBook=true;break}
+  if(take(/\b(?:valorant|valo|vct)\b/i))b.sport='Valorant';else if(take(/\bdota\s*2?\b/i))b.sport='Dota 2';else if(take(/\blol\b|league of legends/i))b.sport='LoL';else if(take(/\bcs\s*2?\b|\bcsgo\b/i))b.sport='CS2';
+  else if(take(/\bfutebol\b/i)||FUT.test(r))b.sport='Futebol';else{const h=ctx.sport||sportFromHist(lo+' '+(ctx.event||'').toLowerCase());b.sport=h||(r.split(VS).length===2&&!ESP.includes(defSport())?'CS2':defSport())}
+  const esp=ESP.includes(b.sport);
+  if(esp){m=take(/\b(?:mapas?|m)\s*(\d)\s*[-–a]\s*(\d)\b/i);if(m)b.maps=`Mapas ${m[1]}-${m[2]}`;else{m=take(/\b(?:mapa|m)\s*(\d)\b/i);if(m)b.maps=`Mapa ${m[1]}`;else if(take(/\bs[ée]rie\s+(?:toda|inteira)\b/i))b.maps='Série'}}
+  else if(b.sport==='Futebol'){if(take(/\b1\s*[º°o]?\s*t(?:empo)?\b|primeiro tempo|\bht\b/i))b.maps='1º tempo';else if(take(/\b2\s*[º°o]?\s*t(?:empo)?\b|segundo tempo/i))b.maps='2º tempo'}
+  if(take(/✅|✔\uFE0F?|\bgreen\b/i))b.result='win';else if(take(/❌|✖\uFE0F?|\bred\b/i))b.result='loss';else if(take(/\b(?:void|devolvida|reembolso)\b/i))b.result='void';
+  m=take(/\b(?:over|mais\s+de)\s*(\d+(?:[.,]\d+)?)/i)||take(/\bo\s?(\d+[.,]5)\b/i);if(m){dir='Over';b.line=num(m[1])}
+  else{m=take(/\b(?:under|menos\s+de)\s*(\d+(?:[.,]\d+)?)/i)||take(/\bu\s?(\d+[.,]5)\b/i);if(m){dir='Under';b.line=num(m[1])}
+  else{m=take(/\b(?:hc|handicap|ah)\s*([+-]?\d+(?:[.,]\d+)?)/i);if(m){dir='Handicap';b.line=num(m[1])}else if(take(/\bml\b/i))dir='ML'}}
+  const ms=(CAT[b.sport]||[]).map(x=>x.m).sort((a,c)=>PRI.includes(c)-PRI.includes(a));
+  for(const mm of ms){const re=SYN[mm];if(re&&re.test(r)){b.market=mm;r=r.replace(re,' ');break}}
+  const team=!!take(/\b(?:do\s+|da\s+)?time\b/i);
+  const vs=r.split(VS);
+  if(esp&&vs.length===2){dir='Comparativa';m=vs[1].match(/([+-]\d+(?:[.,]\d+)?)/)||vs[0].match(/([+-]\d+(?:[.,]\d+)?)/);
+    if(m&&b.line==='')b.line=num(m[1]);if(b.line==='')b.line=0;vs[0]=vs[0].replace(/[+-]\d+(?:[.,]\d+)?/,' ');vs[1]=vs[1].replace(/[+-]\d+(?:[.,]\d+)?/,' ');
+    b.player=vs[0].replace(/\s+/g,' ').trim();b.opp=vs[1].replace(/\s+/g,' ').trim()}
+  else if(vs.length===2)b.event=vs.map(x=>x.replace(/\s+/g,' ').trim()).join(' x ');
+  else{if(!dir){m=r.match(/(?:^|\s)([+-]\d+(?:[.,]\d+)?)(?=\s|$)/);if(m){dir='Handicap';b.line=num(m[1]);r=r.replace(m[1],' ')}}b.player=r.replace(/\s+/g,' ').trim()}
+  if(!b.market&&esp&&dir==='ML')b.market='Mapas';
+  if(!b.market&&esp&&dir&&dir!=='Handicap')b.market='Kills';
+  b.sub=pickSub(b.sport,b.market,dir,team,b.line!==''&&!(dir==='Comparativa'&&num(b.line)===0),b.maps);
+  if(!b.time&&ctx.time)b.time=ctx.time;if(!gotDate&&ctx.date)b.date=ctx.date;if(!b.event&&ctx.event)b.event=ctx.event;if(!gotBook&&ctx.book)b.book=ctx.book;
+  return norm(b)}
+function parseBlock(text){const out=[],ctx={};
+  for(const raw of text.split('\n')){const t=raw.replace(/[\u2060\u200b\u00a0]/g,' ').replace(/^\s*[-•*–·]+\s*/,'').trim();if(!t)continue;
+    const isBet=/@\s*\d|\bodds?\s*\d|\d[.,]\d|\d\s*u\b|✅|❌|\b(over|under|hc|handicap|ml)\b|>/i.test(t);
+    if(!isBet){let m;
+      if(m=t.match(/^([01]?\d|2[0-3])(?::([0-5]\d)|h([0-5]\d)?)h?$/i)){ctx.time=m[1].padStart(2,'0')+':'+(m[2]||m[3]||'00');continue}
+      if(/^hoje$/i.test(t)){ctx.date=today();continue}if(/^amanh[ãa]$/i.test(t)){ctx.date=addDays(today(),1);continue}
+      if(m=t.match(/^(\d{1,2})\/(\d{1,2})$/)){ctx.date=`${today().slice(0,4)}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;continue}
+      if(m=t.match(/^([\w .-]{2,24}):$/)){const k=S.books.find(x=>x.toLowerCase()===m[1].trim().toLowerCase());ctx.book=k||m[1].trim();continue}
+      if(/\s(?:x|vs\.?|versus)\s/i.test(t)){ctx.event=t.split(/\s+(?:x|vs\.?|versus)\s+/i).map(x=>x.trim()).join(' x ');const s=sportFromHist(t.toLowerCase());if(s)ctx.sport=s;continue}}
+    out.push(parseLine(t,ctx))}
+  return out}
+
+/* ---------- Claude ---------- */
+async function aiParse(text,images){
+  const cat=SPORTS.filter(s=>CAT[s].length).map(s=>`${s}: `+CAT[s].map(x=>`${x.m} [${x.l.join(' | ')}]`).join('; ')).join('\n');
+  const p=`Você converte apostas em JSON para a caderneta de um apostador profissional (props de jogador em esports, sobretudo CS2; também futebol e outros mercados). Hoje é ${today()} (horário de Brasília). Casas conhecidas: ${S.books.join(', ')}. Esporte padrão: ${defSport()}. Casa padrão: ${S.book}.
+Esportes válidos: ${SPORTS.join(', ')}. Catálogo — Esporte: Mercado [Tipos de aposta]:
+${cat}
+Entrada (texto e/ou prints de bilhete). Linhas sem odd com só um horário, uma partida "A x B" ou "casa:" valem para as apostas abaixo delas:
+"""${text||'(só imagem)'}"""
+Regras: identifique o esporte. market e sub EXATAMENTE do catálogo quando couber; sub = o tipo de aposta (ex. "Over chutes time", "Player duels"); tipos sem "time" são do jogador; line = o número da linha ou handicap. Em esports, sempre que a aposta tiver dois jogadores ("A > B", "A x B", "A -0,5 x B", com ou sem handicap) é player duel: market "Kills" (salvo outro indicado), sub "Player duels", handicap em line. "A > B" = handicap 0,0: line 0. "ML faltas" = sub "ML faltas". Se nada couber, crie nomes curtos no mesmo padrão. Uma entrada por aposta. Múltipla vira UMA entrada, market e sub "Múltipla". Comparativa: player = escolhido, opp = o outro, handicap em line. Mercados de time: player = time escolhido, event = partida "A x B". maps: esports "Mapa 1", "Mapas 1-2", "Série"; futebol "Jogo todo", "1º tempo", "2º tempo". stake em unidades; sem stake = 1. odds decimal. result "pending" salvo se mostrar resolvida (win, loss, void, hw, hl; ✅ = win, ❌ = loss). date YYYY-MM-DD e time HH:MM = data e horário do JOGO em Brasília (se não houver, date de hoje e time ""). Campo desconhecido = "".
+Responda só JSON: {"bets":[{"date":"","time":"","sport":"","book":"","event":"","player":"","opp":"","market":"","sub":"","line":"","maps":"","odds":0,"stake":1,"result":"pending","note":""}]}`;
+  const o={modelTier:'default'};if(images.length&&sampleImg)o.images=images;
+  const r=await sample.json(p,o);return Array.isArray(r?.bets)?r.bets:[]}
+async function aiSettle(text,images){
+  const pend=bets.filter(b=>b.result==='pending').map(b=>({id:b.id,date:b.date,time:b.time,book:b.book,event:b.event,sport:b.sport,aposta:label(b),mercado:b.market,tipo:b.sub,linha:b.line,odds:b.odds}));
+  const p=`Resolva apostas pendentes de um apostador a partir do material abaixo (print/texto da página de apostas resolvidas da casa, placar, ou estatísticas dos jogadores).
+Pendentes: ${JSON.stringify(pend)}
+Material: """${text||'(só imagem)'}"""
+Se o material traz estatísticas, calcule: Over/Under contra a linha; tipos com "time" usam a estatística do time; Player duels = player precisa superar opp somando o handicap (linha) ao player; sem valor ou "A > B" = handicap 0,0; Handicap = some a linha ao lado escolhido; ML = quem tem mais; empate exato = void. Linhas .25/.75 podem dar hw/hl. Só responda as que o material resolve com segurança; omita o resto.
+Responda só JSON: {"results":[{"id":"","result":"win|loss|void|hw|hl","why":"curto, com números"}]}`;
+  const o={modelTier:'default'};if(images.length&&sampleImg)o.images=images;
+  const r=await sample.json(p,o);const ids=new Set(pend.map(x=>x.id));return(Array.isArray(r?.results)?r.results:[]).filter(x=>ids.has(x.id)&&RES[x.result]&&x.result!=='pending')}
+
+/* ---------- registro ---------- */
+const imgChips=(arr,attr)=>arr.map((f,i)=>`<span class="chip"><img src="${URL.createObjectURL(f)}" alt="print ${i+1}"><button data-${attr}="${i}" aria-label="remover">×</button></span>`).join('');
+const chips=()=>$('#chips').innerHTML=imgChips(imgs,'rm');
+async function interpret(direct,forceAi){
+  const t=$('#q').value.trim();if(!t&&!imgs.length)return;
+  if(imgs.length||forceAi){
+    if(!sample){toast('Leitura por Claude indisponível nesta visualização');if(!t)return;drafts=parseBlock(t)}
+    else{const g=$('#go');g.disabled=true;g.textContent='Lendo…';
+      try{drafts=(await aiParse(t,imgs)).map(norm)}catch(e){toast(e.code==='rate_limited'?'Muitas leituras, espere um pouco':'Não consegui ler o print');drafts=t?parseBlock(t):[]}
+      g.disabled=false;g.textContent='Revisar ⏎'}}
+  else drafts=parseBlock(t);
+  if(direct&&drafts.length&&drafts.every(d=>num(d.odds)>1)){await saveDrafts();return}
+  showDrafts()}
+function showDrafts(){const el=$('#drafts');
+  if(!drafts.length){el.innerHTML='';return}
+  el.innerHTML=drafts.map((d,i)=>{const p='d'+i+'-';return`<div class="draft" data-i="${i}"><div class="sel">${esc(label(d))}<div class="hint">${esc(d.date.slice(8)+'/'+d.date.slice(5,7))}${d.time?' · '+esc(d.time):''} · ${esc(d.sport)} · ${esc(d.book)} · @${esc(d.odds||'?')} · ${esc(d.stake)}u${num(d.odds)>1?'':' · <b style="color:var(--loss)">falta a odd</b>'}</div></div>
+    <div class="grid">${FIELDS.filter(f=>MAINF.includes(f[0])).map(f=>field(f,d[f[0]],p)).join('')}</div>
+    <details><summary>Mais campos</summary><div class="grid">${FIELDS.filter(f=>!MAINF.includes(f[0])).map(f=>field(f,d[f[0]],p)).join('')}</div></details>
+    ${listsHTML(p,d)}<button class="btn sm ghost" data-dx="${i}">Descartar</button></div>`}).join('')+
+   `<div class="row" style="margin-top:14px"><button class="btn pri" id="saveAll">Salvar ${drafts.length>1?drafts.length+' apostas':'aposta'} ⏎</button>${sample?'<button class="btn" id="reAi">Reler com Claude</button>':''}<button class="btn ghost" id="cancel">Cancelar</button></div>`;
+  $('#saveAll').focus()}
+async function saveDrafts(){
+  $$('#drafts .draft').forEach(el=>{const i=+el.dataset.i;drafts[i]=readFields(el,drafts[i])});
+  const ok=drafts.filter(d=>num(d.odds)>1),bad=drafts.filter(d=>num(d.odds)<=1);
+  if(!ok.length){toast('Falta a odd');showDrafts();return}
+  const ids=[];let n=0;for(const d of ok){const b=norm(d);b.id=nid();b.ts=Date.now()+n++;ids.push(b.id);await putBet(b,true)}
+  render();drafts=bad;imgs=[];chips();if(!bad.length)$('#q').value='';showDrafts();
+  toast(ok.length+(ok.length>1?' apostas salvas':' aposta salva')+(bad.length?` · ${bad.length} sem odd`:''),async()=>{for(const id of ids)await delBet(id)});
+  if(!bad.length)$('#q').focus()}
+$('#q').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();interpret(e.ctrlKey||e.metaKey)}});
+const pasteImgs=e=>[...(e.clipboardData?.items||[])].filter(i=>i.type.startsWith('image/')).map(i=>i.getAsFile()).filter(Boolean);
+$('#q').addEventListener('paste',e=>{const fs=pasteImgs(e);if(fs.length){e.preventDefault();imgs.push(...fs);chips();toast('Print anexado · ⏎ para ler')}});
+$('#file').addEventListener('change',e=>{imgs.push(...e.target.files);e.target.value='';chips()});
+$('#entry').addEventListener('dragover',e=>e.preventDefault());
+$('#entry').addEventListener('drop',e=>{e.preventDefault();const fs=[...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));if(fs.length){imgs.push(...fs);chips()}});
+$('#go').onclick=()=>interpret(false);
+$('#entry').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.rm){imgs.splice(+t.dataset.rm,1);chips()}
+  else if(t.dataset.dx){drafts.splice(+t.dataset.dx,1);showDrafts()}
+  else if(t.id==='saveAll')saveDrafts();
+  else if(t.id==='cancel'){drafts=[];showDrafts()}
+  else if(t.id==='reAi')interpret(false,true)});
+$('#drafts').addEventListener('change',e=>{const k=e.target.dataset.k,el=e.target.closest('.draft');if(el&&(k==='sport'||k==='market'))refreshLists(el,'d'+el.dataset.i+'-')});
+$('#drafts').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('input,select')){e.preventDefault();saveDrafts()}});
+$('#mic').onclick=()=>{if(!dict)return;if(listening){dict.stop().catch(()=>{});return}
+  dict.start().catch(e=>{if(e?.code==='not_granted'){$('#mic').hidden=true;toast('Microfone recusado')}})};
+
+/* ---------- pendentes ---------- */
+function dayLabel(d){const t=today();if(d===t)return'Hoje';if(d===addDays(t,1))return'Amanhã';if(d===addDays(t,-1))return'Ontem';
+  const x=new Date(d+'T12:00');return isNaN(x)?d:x.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit'})}
+function rDay(){const d=dayStats(),s=d.s,res=s.n>0;
+  $('#dstat').innerHTML=`<span class="lbl">Hoje</span>${res?`<b class="${cls(s.profit)}">${fu(s.profit)}</b><span>${d.g} G · ${d.r} R${d.v?' · '+d.v+' D':''}</span>`:'<span>nenhuma resolvida ainda</span>'}${d.p?`<span>${d.p} pendente${d.p>1?'s':''}</span>`:''}`}
+function rPend(){rDay();const P=bets.filter(b=>b.result==='pending').sort(byAsc);
+  const np=$('#npend');np.hidden=!P.length;np.textContent=P.length;
+  $('#psum').textContent=P.length?`${P.length} em aberto · ${P.reduce((a,b)=>a+num(b.stake),0).toFixed(2).replace(/\.?0+$/,'')}u em jogo`:'';
+  $('#settle').hidden=!(sample&&P.length);
+  if(!P.length){$('#plist').innerHTML='<p class="empty">Nenhuma aposta pendente. Tudo em dia.</p>';return}
+  const now=new Date();let html='',last='';
+  for(const b of P){if(b.date!==last){last=b.date;const same=P.filter(x=>x.date===b.date);html+=`<div class="day"><span>${esc(dayLabel(b.date))}</span><span>${same.length} · ${same.reduce((a,x)=>a+num(x.stake),0).toFixed(2).replace(/\.?0+$/,'')}u</span></div>`}
+    const late=b.time&&new Date(b.date+'T'+b.time)<new Date(now-150*60000);
+    html+=`<div class="pc" data-id="${esc(b.id)}"><div class="pt">${esc(b.time||'—')}</div><div class="pm"><b>${esc(label(b))}</b><span>${b.event?esc(b.event)+' · ':''}${esc(b.book)} · @${esc(b.odds)} · ${esc(b.stake)}u${late?' · <span class="late">já deve ter acabado</span>':''}</span></div>
+    <div class="rbs"><button class="rb win" data-r="win" title="Green">G</button><button class="rb hw" data-r="hw" title="Meio green">½G</button><button class="rb" data-r="void" title="Devolvida">D</button><button class="rb hl" data-r="hl" title="Meio red">½R</button><button class="rb loss" data-r="loss" title="Red">R</button><button class="rb" data-ed="${esc(b.id)}" title="Editar" aria-label="Editar">✎</button></div></div>`}
+  $('#plist').innerHTML=html}
+$('#plist').addEventListener('click',async e=>{const t=e.target.closest('button');if(!t)return;const row=t.closest('.pc');
+  if(t.dataset.r&&row){const b=bets.find(x=>x.id===row.dataset.id);if(!b)return;const nb={...b,result:t.dataset.r,settled:Date.now()};
+    await putBet(nb);toast(`${RES[nb.result]} · ${fu(pl(nb))} · ${label(b)}`,()=>putBet(b))}
+  else if(t.dataset.ed)openEdit(t.dataset.ed)});
+function rSettle(){$('#schips').innerHTML=imgChips(setImgs,'srm');
+  $('#sres').innerHTML=settleRes.length?`<table style="margin-top:12px" class="stack"><thead><tr><th>Aposta</th><th>Resultado</th><th>Motivo</th></tr></thead><tbody>${settleRes.map(x=>{const b=bets.find(y=>y.id===x.id);return`<tr><td>${esc(b?label(b):x.id)}</td><td><span class="tag t-${x.result}">${RES[x.result]}</span></td><td class="hint">${esc(x.why)}</td></tr>`}).join('')}</tbody></table><div class="row" style="margin-top:10px"><button class="btn pri" id="sapply">Aplicar ${settleRes.length}</button><button class="btn ghost" id="sdis">Descartar</button></div>`:''}
+$('#settle').addEventListener('click',async e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.srm){setImgs.splice(+t.dataset.srm,1);rSettle()}
+  else if(t.id==='sgo'){const q=$('#sq').value.trim();if(!q&&!setImgs.length)return;t.disabled=true;t.textContent='Cruzando…';
+    try{settleRes=await aiSettle(q,setImgs);if(!settleRes.length)toast('Nenhuma pendente resolvida com segurança')}catch(e){toast('Não consegui ler agora')}
+    t.disabled=false;t.textContent='Cruzar com as pendentes';rSettle()}
+  else if(t.id==='sapply'){const prev=[];for(const x of settleRes){const b=bets.find(y=>y.id===x.id);if(b){prev.push(b);await putBet({...b,result:x.result,settled:Date.now()},true)}}
+    render();toast(prev.length+' resolvidas',async()=>{for(const b of prev)await putBet(b,true);render()});settleRes=[];setImgs=[];$('#sq').value='';rSettle()}
+  else if(t.id==='sdis'){settleRes=[];rSettle()}});
+$('#sfile').addEventListener('change',e=>{setImgs.push(...e.target.files);e.target.value='';rSettle()});
+$('#sq').addEventListener('paste',e=>{const fs=pasteImgs(e);if(fs.length){e.preventDefault();setImgs.push(...fs);rSettle()}});
+
+/* ---------- histórico ---------- */
+function fillSel(id,arr,first){const s=$(id),v=s.value;s.innerHTML=(first?`<option value="">${first}</option>`:'')+arr.map(x=>Array.isArray(x)?`<option value="${x[0]}">${esc(x[1])}</option>`:`<option>${esc(x)}</option>`).join('');if([...s.options].some(o=>o.value===v))s.value=v}
+const booksAll=()=>[...new Set([...S.books,...bets.map(b=>b.book).filter(Boolean)])];
+function rHist(){
+  const q=$('#hq').value.trim(),sp=$('#hs').value,bk=$('#hb').value,per=$('#hp').value||'all',n=nz(q);
+  let L=bets.filter(b=>b.result!=='pending'&&(!sp||b.sport===sp)&&(!bk||b.book===bk)&&inPer(b,per));
+  const tag=new Map();
+  if(n.length>=1)L=L.filter(b=>{const l=ladoDe(b,q);if(l){tag.set(b.id,l);return true}return nz([b.event,b.market,b.sub,b.tags,b.note,b.maps,b.book].join(' ')).includes(n)});
+  L.sort(byDesc);
+  const F=L.filter(b=>tag.get(b.id)==='f'),C=L.filter(b=>tag.get(b.id)==='c');
+  if(F.length||C.length){const sf=stats(F),scn=stats(C);
+    $('#hprof').innerHTML=`<div class="prof"><div><span class="tag t-f">A favor de “${esc(q)}”</span><b class="${cls(sf.profit)}">${fu(sf.profit)}</b><span>${sf.n} apostas · ROI ${pc(sf.roi)} · acerto ${pcp(sf.wr)}</span></div><div><span class="tag t-c">Contra “${esc(q)}”</span><b class="${cls(scn.profit)}">${fu(scn.profit)}</b><span>${scn.n} apostas · ROI ${pc(scn.roi)} · acerto ${pcp(scn.wr)}</span></div></div>`}
+  else $('#hprof').innerHTML='';
+  const s=stats(L);$('#hsum').innerHTML=L.length?`${L.length} apostas · <b class="${cls(s.profit)}">${fu(s.profit)}</b> · ROI ${pc(s.roi)}`:'';
+  const show=tag.size>0;
+  $('#hlist').innerHTML=L.length?`<div class="card" style="padding:6px 12px"><table class="stack"><thead><tr><th>Jogo</th><th>Aposta</th>${show?'<th>Lado</th>':''}<th>Casa</th><th class="n">Odd</th><th class="n">Stake</th><th>Resultado</th><th class="n">Lucro</th><th></th></tr></thead><tbody>${L.slice(0,400).map(b=>{const p=pl(b),l=tag.get(b.id);return`<tr class="click" data-id="${esc(b.id)}"><td style="white-space:nowrap">${esc(b.date.slice(8)+'/'+b.date.slice(5,7))}${b.time?' '+esc(b.time):''}</td><td>${esc(label(b))}${b.event?`<div class="hint">${esc(b.event)}</div>`:''}</td>${show?`<td>${l?`<span class="tag t-${l}">${l==='f'?'A favor':'Contra'}</span>`:''}</td>`:''}<td>${esc(b.book)}</td><td class="n">${esc(b.odds)}</td><td class="n">${esc(b.stake)}u</td><td><span class="tag t-${esc(b.result)}">${RES[b.result]||''}</span></td><td class="n ${cls(p)}">${fu(p)}</td><td><button class="btn sm ghost" data-dup="${esc(b.id)}" title="Lançar de novo como nova aposta">Repetir</button></td></tr>`}).join('')}</tbody></table></div>${L.length>400?'<p class="hint">Mostrando as 400 mais recentes; use os filtros.</p>':''}`:'<p class="empty">Nenhuma aposta finalizada por aqui.</p>'}
+['#hs','#hb','#hp'].forEach(id=>$(id).addEventListener('change',rHist));let hqT;$('#hq').addEventListener('input',()=>{clearTimeout(hqT);hqT=setTimeout(rHist,180)});
+$('#hlist').addEventListener('click',e=>{const d=e.target.closest('[data-dup]');if(d){e.stopPropagation();const b=bets.find(x=>x.id===d.dataset.dup);if(b){const{id,ts,settled,...r}=b;drafts=[{...r,date:today(),time:'',result:'pending',close:''}];location.hash='#apostas';showDrafts()}return}
+  const tr=e.target.closest('tr[data-id]');if(tr)openEdit(tr.dataset.id)});
+
+/* ---------- dados ---------- */
+function drawCurve(svg,curve){const W=svg.clientWidth,H=svg.clientHeight;if(!W||!H)return;
+  if(curve.length<2){svg.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" class="ct">A curva aparece com 2+ apostas finalizadas</text>`;return}
+  const pts=[0,...curve],mn=Math.min(0,...pts),mx=Math.max(0,...pts),p=12,x=i=>p+i*(W-2*p)/(pts.length-1),y=v=>p+(mx-v)*(H-2*p)/((mx-mn)||1);
+  const d=pts.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+','+y(v).toFixed(1)).join('');
+  svg.innerHTML=`<line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" class="zl"/><path d="${d}L${x(pts.length-1)},${y(0)}L${x(0)},${y(0)}Z" class="ar"/><path d="${d}" class="ln"/><circle cx="${x(pts.length-1)}" cy="${y(pts.at(-1))}" r="4.5" class="dt"/>`}
+let curveData=[];const ro=new ResizeObserver(()=>drawCurve($('#curve'),curveData));ro.observe($('#curve'));
+const WD=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const spx=(b,v,fs)=>v?(fs?v:b.sport+' · '+v):'';
+const DIMS={market:['mercado',(b,fs)=>spx(b,b.market,fs)],sub:['tipo de aposta',(b,fs)=>spx(b,b.sub,fs)],side:['direção',b=>b.side||dirOf(b.sub)],alvo:['alvo (jogador/time)',b=>alvoOf(b)],sport:['esporte',b=>b.sport],book:['casa',b=>b.book],
+  odds:['faixa de odd',b=>{const o=num(b.odds);return o<1.5?'a. < 1.50':o<1.7?'b. 1.50–1.69':o<1.9?'c. 1.70–1.89':o<2.1?'d. 1.90–2.09':o<2.5?'e. 2.10–2.49':'f. 2.50+'}],
+  stake:['stake',b=>{const s=num(b.stake);return s<=.5?'a. ≤ 0.5u':s<=1?'b. 0.5–1u':s<=2?'c. 1–2u':'d. > 2u'}],maps:['mapas / período',b=>b.maps],player:['jogador / time escolhido',b=>b.player],event:['partida',b=>b.event],tags:['tag',b=>(b.tags||'').split(',')[0].trim()],wd:['dia da semana',b=>WD[new Date(b.date+'T12:00').getDay()]],month:['mês',b=>(b.date||'').slice(0,7)]};
+function rDados(){const per=$('#dp').value||'all',sp=$('#ds').value,bk=$('#db').value;
+  const L=bets.filter(b=>inPer(b,per)&&(!sp||b.sport===sp)&&(!bk||b.book===bk)),s=stats(L);
+  const dd=dayStats(),pn={m:'no mês',d:'hoje','7':'nos últimos 7 dias','30':'nos últimos 30 dias','90':'nos últimos 90 dias',y:'no ano',all:'no total'}[per]||'';
+  $('#dk').innerHTML=`<div class="big"><span>Lucro ${pn}</span><b class="${cls(s.profit)}">${fu(s.profit)}</b></div>
+   ${per!=='d'?`<div class="big"><span>Hoje</span><b class="${cls(dd.s.profit)}">${fu(dd.s.profit)}</b><span>${dd.g} G · ${dd.r} R${dd.p?' · '+dd.p+' pendente'+(dd.p>1?'s':''):''}</span></div>`:''}
+   <div><span>ROI</span><b>${pc(s.roi)}</b></div><div><span>Apostas finalizadas</span><b>${s.n}</b></div>
+   <div><span>Acerto</span><b>${pcp(s.wr)}</b><span>precisa ${pcp(s.be)}</span></div><div><span>Odd média</span><b>${isFinite(s.avgOdd)?s.avgOdd.toFixed(2):'—'}</b></div>`;
+  curveData=s.curve;drawCurve($('#curve'),curveData);
+  const m=new Map();L.forEach(b=>{if(b.result==='pending')return;const k=DIMS[dim][1](b,!!sp)||'—';if(!m.has(k))m.set(k,[]);m.get(k).push(b)});
+  const G=[...m].map(([k,v])=>({k,s:stats(v)})).filter(g=>g.s.n);G.sort(['odds','month','stake'].includes(dim)?(a,b)=>a.k.localeCompare(b.k):(a,b)=>b.s.profit-a.s.profit);
+  const mx=Math.max(.01,...G.map(g=>Math.abs(g.s.roi)||0));
+  $('#dcuts').innerHTML=G.length?`<div class="scroll"><table class="stack"><thead><tr><th>${esc(DIMS[dim][0][0].toUpperCase()+DIMS[dim][0].slice(1))}</th><th class="n">Apostas</th><th class="n">Acerto</th><th class="n">Odd méd.</th><th class="n">Lucro</th><th class="n">ROI</th><th></th></tr></thead><tbody>${G.map(g=>{const r=g.s.roi||0,w=Math.min(50,Math.abs(r)/mx*50);return`<tr><td>${esc(g.k.replace(/^[a-f]\. /,''))}</td><td class="n">${g.s.n}</td><td class="n">${pcp(g.s.wr)}</td><td class="n">${isFinite(g.s.avgOdd)?g.s.avgOdd.toFixed(2):'—'}</td><td class="n ${cls(g.s.profit)}">${fu(g.s.profit)}</td><td class="n ${cls(r)}">${pc(g.s.roi)}</td><td><div class="bar"><i style="left:${r<0?50-w:50}%;width:${w}%;background:var(${r<0?'--loss':'--win'})"></i></div></td></tr>`}).join('')}</tbody></table></div>`:'<p class="empty">Sem apostas finalizadas nesse filtro.</p>'}
+['#dp','#ds','#db'].forEach(id=>$(id).addEventListener('change',rDados));
+$('#dim').innerHTML=Object.entries(DIMS).map(([k,[n]])=>`<option value="${k}">Por ${n}</option>`).join('');$('#dim').onchange=e=>{dim=e.target.value;rDados()};
+
+/* ---------- ajustes ---------- */
+function rCfg(){$('#v-ajustes').innerHTML=`<h1 style="margin-bottom:14px">Ajustes</h1><div class="card"><h2 style="margin-bottom:12px">Padrões</h2><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">
+  <label class="f">Esporte padrão<select id="c-sport">${SPORTS.map(s=>`<option${s===defSport()?' selected':''}>${s}</option>`).join('')}</select></label>
+  <label class="f">Casa padrão<input id="c-book" value="${esc(S.book)}"></label></div>
+  <label class="f" style="margin-top:8px">Casas (separadas por vírgula)<input id="c-books" value="${esc(S.books.join(', '))}"></label>
+  <div class="row" style="margin-top:12px"><button class="btn pri" id="c-save">Salvar ajustes</button></div></div>
+  <div style="height:14px"></div><div class="card"><h2 style="margin-bottom:6px">Exportar / importar</h2><p class="hint">CSV com cabeçalho: ${FIELDS.map(f=>f[0]).join(', ')}. Cole abaixo para importar.</p>
+  <textarea id="csv" style="min-height:120px;font:13px/1.4 ui-monospace,monospace"></textarea>
+  <div class="row" style="margin-top:8px"><button class="btn" id="c-exp">Copiar CSV de tudo</button><button class="btn" id="c-imp">Importar CSV colado</button></div></div>
+  <div style="height:14px"></div><button class="btn ghost" id="c-out">Sair da conta</button>`}
+const toCSV=()=>{const k=FIELDS.map(f=>f[0]);return[k.join(','),...[...bets].sort(byAsc).map(b=>k.map(x=>{const v=String(b[x]??'');return/[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(','))].join('\n')};
+function fromCSV(t){const rows=[];let r=[],c='',q=false;for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch==='"'&&t[i+1]==='"'){c+='"';i++}else if(ch==='"')q=false;else c+=ch}else if(ch==='"')q=true;else if(ch===','||ch===';'){r.push(c);c=''}else if(ch==='\n'){r.push(c);rows.push(r);r=[];c=''}else if(ch!=='\r')c+=ch}if(c||r.length){r.push(c);rows.push(r)}
+  const h=rows.shift()?.map(x=>x.trim().toLowerCase())||[];return rows.filter(x=>x.some(v=>v.trim())).map(x=>Object.fromEntries(h.map((k,i)=>[k,x[i]??''])))}
+$('#v-ajustes').addEventListener('click',async e=>{const id=e.target.id;
+  if(id==='c-out'){window.__signOut&&window.__signOut();return}
+  if(id==='c-save'){const sp=v=>v.split(',').map(x=>x.trim()).filter(Boolean);S={...S,sport:$('#c-sport').value,book:$('#c-book').value.trim()||S.book,books:sp($('#c-books').value)};await saveS();toast('Ajustes salvos')}
+  else if(id==='c-exp'){try{await navigator.clipboard.writeText(toCSV());toast('CSV copiado')}catch{$('#csv').value=toCSV();toast('Copie o texto da caixa')}}
+  else if(id==='c-imp'){const rs=fromCSV($('#csv').value);let n=0;for(const r of rs){const b=norm(r);if(num(b.odds)>1){b.id=nid();b.ts=Date.now()+n;await putBet(b,true);n++}}render();toast(n+' importadas');$('#csv').value=''}});
+
+/* ---------- edição ---------- */
+function openEdit(id){const b=bets.find(x=>x.id===id);if(!b)return;
+  $('#mbody').innerHTML=`<h2 style="margin-bottom:12px">${esc(label(b))}</h2><div class="grid">${FIELDS.map(f=>field(f,b[f[0]],'e-')).join('')}</div>${listsHTML('e-',b)}
+   <div class="row" style="margin-top:14px;justify-content:space-between"><div class="row"><button class="btn pri" id="e-save">Salvar</button><button class="btn ghost" id="e-close">Fechar</button></div><button class="btn ghost" id="e-del" style="color:var(--loss)">Excluir</button></div>`;
+  $('#modal').classList.add('open');$('#modal').dataset.id=id}
+$('#modal').addEventListener('click',async e=>{const m=$('#modal'),id=m.dataset.id,b=bets.find(x=>x.id===id);
+  if(e.target===m||e.target.id==='e-close')m.classList.remove('open');
+  else if(e.target.id==='e-save'&&b){const nb=norm({...readFields($('#mbody'),b),id:b.id,ts:b.ts,settled:b.settled});await putBet(nb);m.classList.remove('open');toast('Atualizada',()=>putBet(b))}
+  else if(e.target.id==='e-del'&&b){if(e.target.dataset.sure){await delBet(id);m.classList.remove('open');toast('Excluída',()=>putBet(b))}else{e.target.dataset.sure=1;e.target.textContent='Confirmar exclusão'}}});
+$('#mbody').addEventListener('change',e=>{const k=e.target.dataset.k;if(k==='sport'||k==='market')refreshLists($('#mbody'),'e-')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#modal').classList.remove('open')});
+
+/* ---------- navegação ---------- */
+const VIEWS=['apostas','historico','dados','ajustes'];
+function go(){const h=location.hash.slice(1);view=VIEWS.includes(h)?h:'apostas';VIEWS.forEach(v=>$('#v-'+v).hidden=v!==view);$$('#nav a').forEach(a=>a.classList.toggle('act',a.dataset.v===view));if(view==='ajustes')rCfg();render()}
+window.addEventListener('hashchange',go);
+function render(){
+  const dl=(id,k)=>{const c={};bets.forEach(b=>{[b[k],k==='player'?b.opp:null].forEach(v=>{if(v)c[v]=(c[v]||0)+1})});$('#'+id).innerHTML=Object.keys(c).sort((a,b)=>c[b]-c[a]).slice(0,300).map(v=>`<option value="${esc(v)}">`).join('')};
+  dl('dl-player','player');dl('dl-event','event');
+  rPend();
+  if(view==='historico'){fillSel('#hs',SPORTS,'Todos os esportes');fillSel('#hb',booksAll(),'Todas as casas');fillSel('#hp',PERIODS);rHist()}
+  else if(view==='dados'){fillSel('#dp',PERIODS_D);fillSel('#ds',SPORTS,'Todos os esportes');fillSel('#db',booksAll(),'Todas as casas');rDados()}}
+
+/* ---------- início (Firebase) ---------- */
+{const bk=LS.get('cad_backup',null);if(bk){bets=(Array.isArray(bk.bets)?bk.bets:[]).map(x=>({...x,sub:fixSub(x.sub)}));S={...DEF,...(bk.S||{})}}
+  const o=getOut();for(const id in o){const v=o[id];bets=bets.filter(x=>x.id!==id);if(!v.__del)bets.push(v)}}
+go();banner();
+const CFG={apiKey:"AIzaSyBusY_EoXzI7IJyrF0kbIfuxRg_63ANjFw",authDomain:"caderneta-apostas.firebaseapp.com",projectId:"caderneta-apostas",storageBucket:"caderneta-apostas.firebasestorage.app",messagingSenderId:"900475488512",appId:"1:900475488512:web:cba07f580d90a20197cbe5"};
+const OWNER='rafaelcoutinhoraposo@gmail.com';
+const app=initializeApp(CFG),auth=getAuth(app);
+let fsdb;try{fsdb=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})})}catch{fsdb=initializeFirestore(app,{})}
+const clean=v=>JSON.parse(JSON.stringify(v));
+function gate(inside,msg){document.body.classList.toggle('locked',!inside);$('#login').hidden=inside;$('#lmsg').textContent=msg||''}
+$('#lbtn').onclick=async()=>{const p=new GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});
+  try{await signInWithPopup(auth,p)}catch(e){if(/popup|environment/.test(e.code||''))signInWithRedirect(auth,p);else $('#lmsg').textContent='Não consegui entrar ('+(e.code||e.message)+')'}};
+getRedirectResult(auth).catch(()=>{});
+let unsubs=[];
+onAuthStateChanged(auth,u=>{unsubs.forEach(f=>f());unsubs=[];col=null;setRef=null;
+  if(!u){gate(false);dbState='wait';return}
+  if(u.email!==OWNER){gate(false,'Esta caderneta é só da conta '+OWNER+'.');signOut(auth);return}
+  gate(true);startDb(u.uid)});
+function startDb(uid){
+  const cref=collection(fsdb,'users',uid,'bets'),sref=doc(fsdb,'users',uid,'meta','settings');
+  col={doc:id=>({set:v=>setDoc(doc(cref,id),clean(v)),delete:()=>deleteDoc(doc(cref,id))})};
+  setRef={set:v=>setDoc(sref,clean(v))};
+  window.__importBets=async arr=>{let n=0;for(const r of arr){const b=norm(r);b.id=r.id||nid();b.ts=r.ts||Date.now()+n;await col.doc(b.id).set(b);n++}return n};
+  window.__importSettings=async x=>{S={...DEF,...x};await setRef.set(S);render();return true};
+  let first=true;dbState='wait';banner();
+  const t=setTimeout(()=>{if(dbState==='wait'){dbState='err';banner()}},15000);
+  unsubs.push(onSnapshot(cref,{includeMetadataChanges:true},s=>{const from=s.docs.map(d=>{const x={...d.data(),id:d.id};x.sub=fixSub(x.sub);return x});
+      if(!s.metadata.fromCache){clearTimeout(t);dbState='on'}
+      const o=getOut();let merged=from;for(const id in o){merged=merged.filter(x=>x.id!==id);if(!o[id].__del)merged.push(o[id])}
+      bets=merged;backup();render();banner();
+      if(!s.metadata.fromCache&&first){first=false;flush(from)}},
+    e=>{clearTimeout(t);dbState='err';banner()}));
+  unsubs.push(onSnapshot(sref,d=>{if(d.exists()){const x=d.data();if(!LS.get('cad_settings_pending',null))S={...DEF,...x,books:[...new Set([...(x.books||DEF.books)])]};backup();if(view==='ajustes'&&!$('#v-ajustes').contains(document.activeElement))rCfg();render()}},()=>{}));
+}
+window.__signOut=()=>signOut(auth);
+/* ditado pelo reconhecimento de voz do navegador */
+{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SR){const r=new SR();r.lang='pt-BR';r.continuous=true;r.interimResults=true;const H={p:[],f:[],s:[]};
+    r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript.trim();(e.results[i].isFinal?H.f:H.p).forEach(f=>f({text:t}))}};
+    r.onstart=()=>H.s.forEach(f=>f({state:'listening'}));r.onend=()=>H.s.forEach(f=>f({state:'idle'}));r.onerror=e=>{if(e.error==='not-allowed')toast('Microfone recusado')};
+    dict={start:()=>{try{r.start()}catch{}return Promise.resolve()},stop:()=>{r.stop();return Promise.resolve()},onPartial:f=>H.p.push(f),onFinal:f=>H.f.push(f),onState:f=>H.s.push(f)};
+    $('#mic').hidden=false;let base='';
+    dict.onState(({state})=>{listening=state==='listening';$('#mic').classList.toggle('on',listening);$('#mic span').textContent=listening?'Parar':'Ditar';if(listening)base=$('#q').value});
+    dict.onPartial(({text})=>{$('#q').value=(base?base+' ':'')+text});
+    dict.onFinal(({text})=>{base=(base?base+' ':'')+text;$('#q').value=base})}}
+render();
+}
+</script>
+</body></html>
