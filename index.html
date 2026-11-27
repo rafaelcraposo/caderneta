@@ -195,7 +195,7 @@ const fixSub=s=>/^comparativa|^player duel/i.test(s||'')?'Player duels':(s||'');
 const dirOf=s=>/comparativa|player duel/i.test(s)?'Comparativa':/^over/i.test(s)?'Over':/^under/i.test(s)?'Under':/handicap/i.test(s)?'Handicap':/^ml\b/i.test(s)?'ML':/vencedor|1x2|dupla|empate anula/i.test(s)?'Vencedor':s?'Outro':'';
 const alvoOf=b=>{if(/\btime\b/i.test(b.sub||''))return'Time/jogo';const m=CAT[b.sport]?.find(x=>x.m===b.market);return m?(m.a==='J'?'Jogador':'Time/jogo'):'—'};
 
-const DEF={unit:50,bank0:100,books:['Bet365','Superbet','Betano','Pinnacle','Stake','Thunderpick','1win'],sport:'CS2',book:'Bet365'};
+const DEF={unit:50,bank0:100,books:['Thunderpick','1win'],sport:'CS2',book:'1win'};
 const FIELDS=[['date','Data do jogo','date'],['time','Hora','time'],['sport','Esporte','sport'],['book','Casa','book'],['event','Partida','text','dl-event'],['player','Jogador / time','text','dl-player'],['opp','Contra','text','dl-player'],['market','Mercado','text','@dlm'],['sub','Tipo de aposta','text','@dls'],['line','Linha / handicap','num'],['maps','Mapas / período','text','@dlp'],['odds','Odd','num'],['stake','Stake (u)','num'],['result','Resultado','result'],['tags','Tags','text'],['note','Notas','text']];
 const MAINF=['date','time','sport','book','event','player','opp','market','sub','line','maps','odds','stake','result'];
 let S={...DEF},bets=[],col=null,setRef=null,sample=null,sampleImg=false,dict=null,listening=false;
@@ -567,7 +567,7 @@ let fsdb;try{fsdb=initializeFirestore(app,{localCache:persistentLocalCache({tabM
 const clean=v=>JSON.parse(JSON.stringify(v));
 function gate(inside,msg){document.body.classList.toggle('locked',!inside);$('#login').hidden=inside;$('#lmsg').textContent=msg||''}
 $('#lbtn').onclick=async()=>{const p=new GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});
-  try{await signInWithPopup(auth,p)}catch(e){if(/popup|environment/.test(e.code||''))signInWithRedirect(auth,p);else $('#lmsg').textContent='Não consegui entrar ('+(e.code||e.message)+')'}};
+  try{await signInWithPopup(auth,p)}catch(e){const c=e.code||'';$('#lmsg').textContent=/popup-blocked/.test(c)?'O navegador bloqueou a janela de login. Permita pop-ups para este site e toque de novo.':/popup-closed|cancelled/.test(c)?'':'Não consegui entrar ('+(c||e.message)+')'}};
 getRedirectResult(auth).catch(()=>{});
 let unsubs=[];
 onAuthStateChanged(auth,u=>{unsubs.forEach(f=>f());unsubs=[];col=null;setRef=null;
